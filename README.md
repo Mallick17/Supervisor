@@ -24,32 +24,51 @@ command=/bin/cat
 <details>
      <summary>Click to view supervisord Command-Line Options</summary>
 
-Here is the information presented in a more understandable table format:
 
-| **Option**                  | **Description**                                                                                                      |
-|-----------------------------|----------------------------------------------------------------------------------------------------------------------|
-| `-c FILE`, `--configuration=FILE` | Path to the supervisord configuration file.                                                                         |
-| `-n`, `--nodaemon`          | Run supervisord in the foreground (not as a daemon).                                                                |
-| `-s`, `--silent`            | Suppress output to stdout.                                                                                          |
-| `-h`, `--help`              | Display help for supervisord commands.                                                                              |
-| `-u USER`, `--user=USER`    | UNIX username or numeric user ID. If supervisord is started as root, it will setuid to this user during startup.     |
-| `-m OCTAL`, `--umask=OCTAL` | Octal number (e.g., `022`) representing the umask to be used by supervisord after startup.                           |
-| `-d PATH`, `--directory=PATH` | When run as a daemon, supervisord will change to this directory before daemonizing.                                |
-| `-l FILE`, `--logfile=FILE` | Path to the supervisord activity log file.                                                                          |
-| `-y BYTES`, `--logfile_maxbytes=BYTES` | Maximum size of the activity log file before rotation. Supports suffixes like `MB` or `GB`.                        |
-| `-z NUM`, `--logfile_backups=NUM` | Number of backup copies of the activity log to retain. Each backup will be of size `logfile_maxbytes`.             |
-| `-e LEVEL`, `--loglevel=LEVEL` | Logging level for the activity log. Valid levels: `trace`, `debug`, `info`, `warn`, `error`, `critical`.           |
-| `-j FILE`, `--pidfile=FILE` | Path to the file where supervisord will write its process ID (PID).                                                 |
-| `-i STRING`, `--identifier=STRING` | Arbitrary string identifier for this instance of supervisord, exposed in client UIs.                              |
-| `-q PATH`, `--childlogdir=PATH` | Path to a directory (must exist) where supervisord will write AUTO-mode child process logs.                        |
-| `-k`, `--nocleanup`         | Prevent supervisord from cleaning up old AUTO process log files at startup.                                         |
-| `-a NUM`, `--minfds=NUM`    | Minimum number of file descriptors required for supervisord to start successfully.                                  |
-| `-t`, `--strip_ansi`        | Strip ANSI escape sequences from child process logs.                                                                |
-| `-v`, `--version`           | Print the supervisord version number and exit.                                                                      |
-| `--profile_options=LIST`    | Comma-separated profiling options. Runs supervisord under a profiler. Options: `cumulative`, `calls`, `callers`.   |
-| `--minprocs=NUM`            | Minimum number of OS process slots required for supervisord to start successfully.                                  |
 
-This table organizes the command-line options for `supervisord` in a clear and concise manner.
+| **Option**                     | **Description**                                                                 | **Example Usage**                                                                 |
+|---------------------------------|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| `-c FILE`, `--configuration=FILE` | Path to the supervisord configuration file.                                     | `supervisord -c /etc/supervisord.conf`                                           |
+| `-n`, `--nodaemon`              | Run supervisord in the foreground (not as a daemon).                            | `supervisord -n`                                                                 |
+| `-s`, `--silent`                | Suppress output to stdout.                                                      | `supervisord -s`                                                                 |
+| `-h`, `--help`                  | Display help information for supervisord commands.                              | `supervisord -h`                                                                 |
+| `-u USER`, `--user=USER`        | Set the UNIX user (username or numeric ID) to run supervisord as.               | `supervisord -u myuser`                                                          |
+| `-m OCTAL`, `--umask=OCTAL`     | Set the umask for supervisord (e.g., 022).                                      | `supervisord -m 022`                                                             |
+| `-d PATH`, `--directory=PATH`   | Change to this directory before daemonizing.                                    | `supervisord -d /var/www`                                                        |
+| `-l FILE`, `--logfile=FILE`     | Specify the path for the supervisord activity log file.                         | `supervisord -l /var/log/supervisord.log`                                        |
+| `-y BYTES`, `--logfile_maxbytes=BYTES` | Set the maximum size of the log file before rotation (e.g., 1MB, 1GB).      | `supervisord -y 10MB`                                                            |
+| `-z NUM`, `--logfile_backups=NUM` | Number of backup log files to keep.                                           | `supervisord -z 5`                                                               |
+| `-e LEVEL`, `--loglevel=LEVEL`  | Set the logging level (trace, debug, info, warn, error, critical).              | `supervisord -e debug`                                                           |
+| `-j FILE`, `--pidfile=FILE`     | Specify the file to store the supervisord process ID (PID).                     | `supervisord -j /var/run/supervisord.pid`                                        |
+| `-i STRING`, `--identifier=STRING` | Set an identifier for this supervisord instance.                              | `supervisord -i mysupervisor`                                                    |
+| `-q PATH`, `--childlogdir=PATH` | Directory for storing child process logs (must exist).                          | `supervisord -q /var/log/supervisor/childlogs`                                   |
+| `-k`, `--nocleanup`             | Prevent cleanup of old AUTO process log files at startup.                       | `supervisord -k`                                                                 |
+| `-a NUM`, `--minfds=NUM`        | Minimum number of file descriptors required for supervisord to start.           | `supervisord -a 1024`                                                            |
+| `-t`, `--strip_ansi`            | Strip ANSI escape sequences from child process logs.                            | `supervisord -t`                                                                 |
+| `-v`, `--version`               | Display the supervisord version number.                                         | `supervisord -v`                                                                 |
+| `--profile_options=LIST`        | Run supervisord under a profiler with options (e.g., cumulative, calls, callers). | `supervisord --profile_options=cumulative,callers`                             |
+| `--minprocs=NUM`                | Minimum number of OS process slots required for supervisord to start.            | `supervisord --minprocs=50`                                                       |
+
+### Example Scenarios:
+1. **Running with a Custom Configuration File**:
+   - Command: `supervisord -c /etc/my_supervisord.conf`
+   - Explanation: This starts supervisord using a custom configuration file located at `/etc/my_supervisord.conf`.
+
+2. **Running in Foreground with Debug Logging**:
+   - Command: `supervisord -n -e debug`
+   - Explanation: This runs supervisord in the foreground with debug-level logging for troubleshooting.
+
+3. **Setting Log File Rotation**:
+   - Command: `supervisord -l /var/log/supervisord.log -y 10MB -z 3`
+   - Explanation: This sets the log file to rotate when it reaches 10MB, keeping 3 backup copies.
+
+4. **Running as a Specific User**:
+   - Command: `supervisord -u myuser`
+   - Explanation: This starts supervisord as the user `myuser`.
+
+5. **Preventing Log Cleanup**:
+   - Command: `supervisord -k`
+   - Explanation: This prevents supervisord from cleaning up old AUTO process log files at startup.
      
 </details> 
 
