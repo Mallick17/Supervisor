@@ -27,6 +27,38 @@ action [arguments] -- see below
 ```
 - Actions are commands like "tail" or "stop".  If -i is specified or no action is specified on the command line, a "shell" interpreting actions typed interactively is started.  Use the action "help" to find out about available actions.
 
+### supervisorctl Actions
+<details>
+     <summary>Click to view detaild information on the supervisorctl Actions with example</summary>
+
+| **Command**  | **Description**                                                                 | **Example**                                      |
+|--------------|---------------------------------------------------------------------------------|--------------------------------------------------|
+| `add`        | Add a process/group to the supervisor control.                                   | `add nginx:nginx_00`                             |
+| `exit`       | Exit the supervisorctl interactive shell.                                        | `exit`                                           |
+| `open`       | Connect to a remote supervisor process.                                          | `open 172.31.12.132`                             |
+| `reload`     | Restart the supervisor process and reload configurations.                        | `reload`                                         |
+| `restart`    | Restart a specific process or group.                                             | `restart nginx:nginx_00`                         |
+| `start`      | Start a specific process or group.                                               | `start nginx:nginx_00`                           |
+| `tail`       | Display the log of a specific process.                                           | `tail nginx:nginx_00`                            |
+| `avail`      | List all available programs/groups.                                              | `avail`                                          |
+| `fg`         | Bring a process to the foreground (interactive mode).                            | `fg nginx:nginx_00`                              |
+| `pid`        | Display the PID of a specific process.                                           | `pid nginx:nginx_00`                             |
+| `remove`     | Remove a process/group from the supervisor control.                              | `remove nginx:nginx_00`                          |
+| `shutdown`   | Shut down the supervisor process and all its child processes.                    | `shutdown`                                       |
+| `status`     | Display the status of all processes/groups.                                      | `status`                                         |
+| `update`     | Reload configurations and start/stop processes as necessary.                     | `update`                                         |
+| `clear`      | Clear the log of a specific process.                                             | `clear nginx:nginx_00`                           |
+| `maintail`   | Display the supervisor main log file.                                            | `maintail`                                       |
+| `quit`       | Quit the supervisorctl interactive shell.                                        | `quit`                                           |
+| `reread`     | Reload configuration files without restarting processes.                         | `reread`                                         |
+| `signal`     | Send a signal to a specific process (e.g., STOP, KILL).                          | `signal TERM nginx:nginx_00`                     |
+| `stop`       | Stop a specific process or group.                                                | `stop nginx:nginx_00`                            |
+| `version`    | Display the version of the supervisor.                                           | `version`                                        |
+
+This table provides a quick reference for supervisorctl commands and their usage.
+
+</details>
+
 ## Installation & Configuration
 ### Step 1: Update the Package List
 Before installing any software, it's a good practice to update the package list to ensure you have the latest versions of the software.
