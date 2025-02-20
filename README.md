@@ -3,8 +3,25 @@
 - Supervisor is a system for controlling and maintaining process state, similar to what init does, but not intended as an init replacement.
 - It will manage individual processes or groups of processes that need to be started and stopped in order, and it is possible to control individual process state via an rpc mechanism, thus allowing ordinary users to restart processes.
 
+## supervisorctl
+### supervisorctl Command-Line Options
+- control applications run by supervisord from the cmd line.
+- Usage: `/usr/bin/supervisorctl [options] [action [arguments]]`
+```bash
+-c/--configuration FILENAME -- configuration file path (searches if not given)
+-h/--help -- print usage message and exit
+-i/--interactive -- start an interactive shell after executing commands
+-s/--serverurl URL -- URL on which supervisord server is listening
+     (default "http://localhost:9001").
+-u/--username USERNAME -- username to use for authentication with server
+-p/--password PASSWORD -- password to use for authentication with server
+-r/--history-file -- keep a readline history (if readline is available)
+```
+- `action [arguments] -- see below`
+- Actions are commands like "tail" or "stop".  If -i is specified or no action is specified on the command line, a "shell" interpreting actions typed interactively is started.  Use the action "help" to find out about available actions.
+
 ## Installation & Configuration
-## Step 1: Update the Package List
+### Step 1: Update the Package List
 Before installing any software, it's a good practice to update the package list to ensure you have the latest versions of the software.
 
 ```bash
@@ -13,7 +30,7 @@ sudo apt update
 
 ---
 
-## Step 2: Install Supervisord & Verify the Installation
+### Step 2: Install Supervisord & Verify the Installation
 Install Supervisord using the `apt` package manager. Check the installed version of Supervisord to confirm the installation was successful.
 
 ```bash
@@ -26,7 +43,7 @@ supervisord -v
 - This command should output the version of Supervisord installed.
 ---
 
-## Step 3: Check Supervisord Service Status
+### Step 3: Check Supervisord Service Status
 Ensure that the Supervisord service is running.
 
 ```bash
@@ -37,7 +54,7 @@ You should see an output indicating that the service is active and running.
 
 ---
 
-## Step 4: Configure Supervisord
+### Step 4: Configure Supervisord
 Edit the Supervisord configuration file to customize its behavior.
 
 1. Open the configuration file in a text editor (e.g., `nano`):
@@ -103,7 +120,7 @@ files = /etc/supervisor/conf.d/*.conf
 
 ---
 
-## Step 5: Apply Configuration Changes
+### Step 5: Apply Configuration Changes
 After modifying the configuration file, reload Supervisord to apply the changes.
 
 1. Reread the configuration:
@@ -126,7 +143,7 @@ After modifying the configuration file, reload Supervisord to apply the changes.
 
 ---
 
-## Step 6: Access the Supervisord Web Interface
+### Step 6: Access the Supervisord Web Interface
 Once the configuration is complete, you can access the Supervisord web interface using a web browser.
 
 - Open a browser and navigate to `http://<your-server-ip>:9001`.
