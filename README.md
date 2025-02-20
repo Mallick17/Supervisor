@@ -6,7 +6,7 @@
 ## supervisorctl
 ### supervisorctl Command-Line Options
 - Control Applications run by supervisord from the cmd line.
-```bash
+```sh
 root@ip-172-31-12-132:/etc/supervisor/conf.d# supervisorctl -h
 supervisorctl -- control applications run by supervisord from the cmd line.
 
