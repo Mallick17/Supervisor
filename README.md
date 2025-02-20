@@ -209,9 +209,9 @@ kill -<SIGNAL> <PID>
 - `<PID>`: The process ID of `supervisord`.
 
 ---
-**supervisord Command-Line Options**
+
 <details>
-     <summary>Click to view supervisord Command-Line Options</summary>
+     <summary>Click to view Signal Handlers in Supervisord</summary>
 
 ### Signal Handlers in Supervisord
 
@@ -259,10 +259,47 @@ Here’s a breakdown of the signals and their effects on `supervisord`:
   ```bash
   kill -SIGUSR2 $(cat /path/to/supervisord.pid)
   ```
+---
+
+### Practical Example: Reloading Configuration
+
+Suppose you’ve updated your `supervisord.conf` file and want to apply the changes without restarting `supervisord`. You can use the `SIGHUP` signal:
+
+1. Update your configuration file (`supervisord.conf`).
+2. Send the `SIGHUP` signal:
+   ```bash
+   kill -SIGHUP $(cat /path/to/supervisord.pid)
+   ```
+3. `supervisord` will reload the configuration and restart all processes accordingly.
+
+---
+### Practical Example: Log Rotation
+
+If you’re rotating logs and want `supervisord` to start writing to new log files, use the `SIGUSR2` signal:
+
+1. Rotate the logs (e.g., using `logrotate`).
+2. Send the `SIGUSR2` signal:
+   ```bash
+   kill -SIGUSR2 $(cat /path/to/supervisord.pid)
+   ```
+3. `supervisord` will close the current log files and reopen them, ensuring logs are written to the new files.
 
 ---
 
 </details>
+
+### Summary Table of Signals
+
+| Signal   | Action                                                                 | Example Command                                      |
+|----------|-----------------------------------------------------------------------|------------------------------------------------------|
+| SIGTERM  | Shuts down `supervisord` and all subprocesses gracefully.             | `kill -SIGTERM $(cat /path/to/supervisord.pid)`      |
+| SIGINT   | Shuts down `supervisord` and all subprocesses gracefully.             | `kill -SIGINT $(cat /path/to/supervisord.pid)`       |
+| SIGQUIT  | Shuts down `supervisord` and all subprocesses gracefully.             | `kill -SIGQUIT $(cat /path/to/supervisord.pid)`      |
+| SIGHUP   | Reloads configuration and restarts all processes.                     | `kill -SIGHUP $(cat /path/to/supervisord.pid)`       |
+| SIGUSR2  | Reopens the main activity log and all child log files.                | `kill -SIGUSR2 $(cat /path/to/supervisord.pid)`      |
+
+---
+
 
 ## Installation & Configuration
 ### Step 1: Update the Package List
