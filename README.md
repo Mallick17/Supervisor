@@ -3,6 +3,56 @@
 - Supervisor is a system for controlling and maintaining process state, similar to what init does, but not intended as an init replacement.
 - It will manage individual processes or groups of processes that need to be started and stopped in order, and it is possible to control individual process state via an rpc mechanism, thus allowing ordinary users to restart processes.
 
+## Running Supervisor
+- To run `supervisord` and `supervisorctl`, you need to know your Python installation's `BINDIR` (binary directory). For example, if Python is installed with `--prefix=/usr/local/py`, the `BINDIR` would be `/usr/local/py/bin`. Check the output of `setup.py install` if you're unsure of your `BINDIR`.
+
+- **Adding a Program**
+  - To use `supervisord`, you must add at least one program to its configuration file `supervisord.conf`. A program section defines a command that `supervisord` will manage.
+  - For example, to run the UNIX `cat` command, add this to `supervisord.conf`:  
+```ini
+[program:foo]
+command=/bin/cat
+```  
+- This is the simplest configuration, but there are many other options available for program sections.
+
+### Running supervisord
+- To start **supervisord**, run `$BINDIR/supervisord`. It runs in the background by default and logs to `$CWD/supervisor.log`. Use the `-n` flag to run it in the foreground for debugging.
+- **Warning**: Supervisord looks for its config file in default locations, including the current directory. To avoid security risks, use the `-c` flag to specify an absolute path to the config file, especially when running as root.
+- To update the programs managed by supervisord, edit `supervisord.conf` and restart supervisord (e.g., `kill -HUP`). Command-line options override settings in the config file.
+
+**supervisord Command-Line Options**
+<details>
+     <summary>Click to view supervisord Command-Line Options</summary>
+
+Here is the information presented in a more understandable table format:
+
+| **Option**                  | **Description**                                                                                                      |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `-c FILE`, `--configuration=FILE` | Path to the supervisord configuration file.                                                                         |
+| `-n`, `--nodaemon`          | Run supervisord in the foreground (not as a daemon).                                                                |
+| `-s`, `--silent`            | Suppress output to stdout.                                                                                          |
+| `-h`, `--help`              | Display help for supervisord commands.                                                                              |
+| `-u USER`, `--user=USER`    | UNIX username or numeric user ID. If supervisord is started as root, it will setuid to this user during startup.     |
+| `-m OCTAL`, `--umask=OCTAL` | Octal number (e.g., `022`) representing the umask to be used by supervisord after startup.                           |
+| `-d PATH`, `--directory=PATH` | When run as a daemon, supervisord will change to this directory before daemonizing.                                |
+| `-l FILE`, `--logfile=FILE` | Path to the supervisord activity log file.                                                                          |
+| `-y BYTES`, `--logfile_maxbytes=BYTES` | Maximum size of the activity log file before rotation. Supports suffixes like `MB` or `GB`.                        |
+| `-z NUM`, `--logfile_backups=NUM` | Number of backup copies of the activity log to retain. Each backup will be of size `logfile_maxbytes`.             |
+| `-e LEVEL`, `--loglevel=LEVEL` | Logging level for the activity log. Valid levels: `trace`, `debug`, `info`, `warn`, `error`, `critical`.           |
+| `-j FILE`, `--pidfile=FILE` | Path to the file where supervisord will write its process ID (PID).                                                 |
+| `-i STRING`, `--identifier=STRING` | Arbitrary string identifier for this instance of supervisord, exposed in client UIs.                              |
+| `-q PATH`, `--childlogdir=PATH` | Path to a directory (must exist) where supervisord will write AUTO-mode child process logs.                        |
+| `-k`, `--nocleanup`         | Prevent supervisord from cleaning up old AUTO process log files at startup.                                         |
+| `-a NUM`, `--minfds=NUM`    | Minimum number of file descriptors required for supervisord to start successfully.                                  |
+| `-t`, `--strip_ansi`        | Strip ANSI escape sequences from child process logs.                                                                |
+| `-v`, `--version`           | Print the supervisord version number and exit.                                                                      |
+| `--profile_options=LIST`    | Comma-separated profiling options. Runs supervisord under a profiler. Options: `cumulative`, `calls`, `callers`.   |
+| `--minprocs=NUM`            | Minimum number of OS process slots required for supervisord to start successfully.                                  |
+
+This table organizes the command-line options for `supervisord` in a clear and concise manner.
+     
+</details> 
+
 ## supervisorctl
 ### supervisorctl Command-Line Options
 - Control Applications run by supervisord from the cmd line.
