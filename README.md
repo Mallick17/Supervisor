@@ -72,8 +72,12 @@ command=/bin/cat
      
 </details> 
 
-## supervisorctl
-### supervisorctl Command-Line Options
+### Running supervisorctl
+- To use **supervisorctl**, run `$BINDIR/supervisorctl`. This opens a shell to control processes managed by **supervisord**. Type `help` for a list of commands.
+- You can also run one-time commands directly, like `supervisorctl stop all`. If arguments are provided, it skips the interactive shell, executes the command, and exits with `0` for success or a non-zero code for errors. For example, `supervisorctl status all` returns non-zero if any process isn’t running.
+- If **supervisord** requires authentication, you’ll be prompted for credentials in interactive mode.
+  
+**supervisorctl Command-Line Options**
 - Control Applications run by supervisord from the cmd line.
 ```sh
 root@ip-172-31-12-132:/etc/supervisor/conf.d# supervisorctl -h
@@ -96,7 +100,58 @@ action [arguments] -- see below
 ```
 - Actions are commands like "tail" or "stop".  If -i is specified or no action is specified on the command line, a "shell" interpreting actions typed interactively is started.  Use the action "help" to find out about available actions.
 
-### supervisorctl Actions
+<details>
+     <summary>Click to view detaild information on the supervisorctl Command-Line options with example</summary>
+
+
+| **Command**               | **Description**                                                                 | **Example**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| `supervisorctl -c FILENAME` | Specify the configuration file path.                                           | `supervisorctl -c /etc/supervisor/supervisord.conf`                        |
+| `supervisorctl -h`         | Print the help message and exit.                                               | `supervisorctl -h`                                                         |
+| `supervisorctl -i`         | Start an interactive shell after executing commands.                           | `supervisorctl -i`                                                         |
+| `supervisorctl -s URL`     | Specify the URL on which supervisord server is listening.                      | `supervisorctl -s http://localhost:9001`                                   |
+| `supervisorctl -u USERNAME`| Specify the username for authentication with the server.                       | `supervisorctl -u admin`                                                   |
+| `supervisorctl -p PASSWORD`| Specify the password for authentication with the server.                       | `supervisorctl -p password123`                                             |
+| `supervisorctl -r`         | Keep a readline history (if readline is available).                            | `supervisorctl -r`                                                         |
+| `supervisorctl status`     | Check the status of all managed processes.                                     | `supervisorctl status`                                                     |
+| `supervisorctl start <process>` | Start a specific process.                                                | `supervisorctl start my_app`                                               |
+| `supervisorctl stop <process>`  | Stop a specific process.                                                | `supervisorctl stop my_app`                                                |
+| `supervisorctl restart <process>` | Restart a specific process.                                             | `supervisorctl restart my_app`                                             |
+| `supervisorctl reread`     | Reload the configuration files without restarting processes.                   | `supervisorctl reread`                                                     |
+| `supervisorctl update`     | Update the process group and start/stop processes as necessary.               | `supervisorctl update`                                                     |
+| `supervisorctl reload`     | Restart the supervisord service and reload the configuration.                  | `supervisorctl reload`                                                     |
+| `supervisorctl shutdown`   | Shut down the supervisord service.                                             | `supervisorctl shutdown`                                                   |
+
+### Example Usage:
+1. **Check the status of all processes:**
+   ```bash
+   supervisorctl status
+   ```
+
+2. **Start a specific process:**
+   ```bash
+   supervisorctl start my_app
+   ```
+
+3. **Restart a specific process:**
+   ```bash
+   supervisorctl restart my_app
+   ```
+
+4. **Reload the configuration:**
+   ```bash
+   supervisorctl reread
+   supervisorctl update
+   ```
+
+5. **Shut down supervisord:**
+   ```bash
+   supervisorctl shutdown
+   ```
+
+</details>
+
+**supervisorctl Actions**
 ```bash
 root@ip-172-31-12-132:/etc/supervisor/conf.d# supervisorctl
 nginx:nginx_00                   RUNNING   pid 26350, uptime 0:00:00
