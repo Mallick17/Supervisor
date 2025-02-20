@@ -195,6 +195,22 @@ This table provides a quick reference for supervisorctl commands and their usage
 
 </details>
 
+## Understanding Signals and Signal Handlers in Supervisord
+Supervisord is a process control system that allows you to manage and monitor multiple processes. It can respond to various **signals** sent to it, which trigger specific actions. These signals are a way to communicate with the `supervisord` process to perform tasks like shutting down, reloading configurations, or reopening log files.
+
+### How to Send Signals to Supervisord
+- To send a signal to `supervisord`, you need its **process ID (PID)**. This PID is stored in a file, typically located at `$CWD/supervisord.pid` (unless you've configured a different path in the `[supervisord]` section of the configuration file).
+- You can send a signal using the `kill` command in Unix-like systems:
+
+```bash
+kill -<SIGNAL> <PID>
+```
+- `<SIGNAL>`: The signal you want to send (e.g., `SIGTERM`, `SIGHUP`, etc.).
+- `<PID>`: The process ID of `supervisord`.
+
+---
+
+
 ## Installation & Configuration
 ### Step 1: Update the Package List
 Before installing any software, it's a good practice to update the package list to ensure you have the latest versions of the software.
