@@ -209,7 +209,60 @@ kill -<SIGNAL> <PID>
 - `<PID>`: The process ID of `supervisord`.
 
 ---
+**supervisord Command-Line Options**
+<details>
+     <summary>Click to view supervisord Command-Line Options</summary>
 
+### Signal Handlers in Supervisord
+
+Here’s a breakdown of the signals and their effects on `supervisord`:
+
+#### 1. **SIGTERM**
+- **Action**: Gracefully shuts down `supervisord` and all its subprocesses.
+- **Timeframe**: This may take several seconds as it ensures all processes are properly terminated.
+- **Example**:
+  ```bash
+  kill -SIGTERM $(cat /path/to/supervisord.pid)
+  ```
+
+#### 2. **SIGINT**
+- **Action**: Similar to `SIGTERM`, it gracefully shuts down `supervisord` and all its subprocesses.
+- **Timeframe**: This may also take several seconds.
+- **Example**:
+  ```bash
+  kill -SIGINT $(cat /path/to/supervisord.pid)
+  ```
+
+#### 3. **SIGQUIT**
+- **Action**: Gracefully shuts down `supervisord` and all its subprocesses.
+- **Timeframe**: This may take several seconds.
+- **Example**:
+  ```bash
+  kill -SIGQUIT $(cat /path/to/supervisord.pid)
+  ```
+
+#### 4. **SIGHUP**
+- **Action**: 
+  - Stops all processes managed by `supervisord`.
+  - Reloads the configuration from the first config file it finds.
+  - Restarts all processes based on the new configuration.
+- **Use Case**: Useful when you’ve made changes to the configuration file and want to apply them without fully restarting `supervisord`.
+- **Example**:
+  ```bash
+  kill -SIGHUP $(cat /path/to/supervisord.pid)
+  ```
+
+#### 5. **SIGUSR2**
+- **Action**: Closes and reopens the main activity log and all child log files.
+- **Use Case**: Useful for log rotation, where you want `supervisord` to start writing to new log files without interrupting the processes.
+- **Example**:
+  ```bash
+  kill -SIGUSR2 $(cat /path/to/supervisord.pid)
+  ```
+
+---
+
+</details>
 
 ## Installation & Configuration
 ### Step 1: Update the Package List
