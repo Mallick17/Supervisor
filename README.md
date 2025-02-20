@@ -54,8 +54,8 @@ Edit the Supervisord configuration file to customize its behavior.
    username=admin
    password=admin
    ```
-   <details>
-      <Summary>Click to view Entire `supervisord.conf` Configuration File</Summary>
+<details>
+   <Summary>Click to view Entire `supervisord.conf` Configuration File</Summary>
 
 ```bash
 root@ip-172-31-12-132:/etc/supervisor# cat supervisord.conf
@@ -94,7 +94,7 @@ serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
 files = /etc/supervisor/conf.d/*.conf
 ```
 
-   </details>
+</details>
 
    - `port`: The IP address and port on which the web interface will run. `0.0.0.0:9001` means it will be accessible on all network interfaces on port 9001.
    - `username` and `password`: Credentials for accessing the web interface.
