@@ -28,6 +28,18 @@ action [arguments] -- see below
 - Actions are commands like "tail" or "stop".  If -i is specified or no action is specified on the command line, a "shell" interpreting actions typed interactively is started.  Use the action "help" to find out about available actions.
 
 ### supervisorctl Actions
+```bash
+root@ip-172-31-12-132:/etc/supervisor/conf.d# supervisorctl
+nginx:nginx_00                   RUNNING   pid 26350, uptime 0:00:00
+supervisor> help
+
+default commands (type help <topic>):
+=====================================
+add    exit      open  reload  restart   start   tail
+avail  fg        pid   remove  shutdown  status  update
+clear  maintail  quit  reread  signal    stop    version
+```
+
 <details>
      <summary>Click to view detaild information on the supervisorctl Actions with example</summary>
 
