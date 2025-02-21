@@ -486,7 +486,7 @@ Check if Nginx is running under Supervisor:
 ps aux | grep nginx
 ```
 ### Access the Supervisor Web Interface
-Open a web browser and navigate to `http://<your-server-ip>:9001`. Use the credentials (`admin/admin`) to log in and view the status of managed processes.
+- Open a web browser and navigate to `http://<your-server-ip>:9001`. Use the credentials (`admin/admin`) to log in and view the status of managed processes.
 ---
 ## 6. Troubleshooting
 ### Check Supervisor Logs
