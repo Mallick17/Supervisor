@@ -451,6 +451,76 @@ command=/usr/bin/example --loglevel=%(ENV_LOGLEVEL)s
 - In the example above, the expression %(ENV_LOGLEVEL)s would be expanded to the value of the environment variable LOGLEVEL. In Supervisor 3.2 and later, %(ENV_X)s expressions are supported in all options.
 
 ## Section Settings
+### **Supervisor Configuration Sections Overview**  
+
+| **Section**            | **Purpose** | **Key Directives** | **Explanation** |
+|-----------------|-------------|----------------|--------------|
+| **[unix_http_server]** | Configures an HTTP server that listens on a UNIX domain socket. | `file = /tmp/supervisor.sock` | Defines the UNIX socket file for communication. |
+|  |  | `chmod = 0777` | Sets read/write permissions (everyone can access). |
+|  |  | `chown = nobody:nogroup` | Specifies the owner and group of the socket file. |
+|  |  | `username = user` | Username for authentication. |
+|  |  | `password = 123` | Password for authentication. |
+| **[inet_http_server]** | Configures an HTTP server that listens on a TCP (Internet) socket. | `port = 127.0.0.1:9001` | Defines the IP address and port for the web interface. |
+|  |  | `username = user` | Username for authentication. |
+|  |  | `password = 123` | Password for authentication. |
+| **[supervisord]** | Defines global settings for the Supervisor process. | `logfile = /tmp/supervisord.log` | Path to the Supervisor log file. |
+|  |  | `logfile_maxbytes = 50MB` | Sets the maximum log file size before rotation. |
+|  |  | `logfile_backups = 10` | Number of rotated log file backups. |
+|  |  | `loglevel = info` | Log level (debug, info, warn, error, critical). |
+|  |  | `pidfile = /tmp/supervisord.pid` | Stores the process ID (PID) file for Supervisor. |
+|  |  | `nodaemon = false` | Runs Supervisor in the background (daemon mode). |
+|  |  | `minfds = 1024` | Minimum number of file descriptors Supervisor can use. |
+|  |  | `minprocs = 200` | Minimum number of processes Supervisor can manage. |
+|  |  | `umask = 022` | Default file permissions mask. |
+|  |  | `user = chrism` | Defines the user that runs Supervisor. |
+|  |  | `identifier = supervisor` | Defines the Supervisor instance name. |
+|  |  | `directory = /tmp` | Working directory for Supervisor. |
+|  |  | `nocleanup = true` | Prevents Supervisor from cleaning up old log files. |
+|  |  | `childlogdir = /tmp` | Defines the directory for child process logs. |
+|  |  | `strip_ansi = false` | Keeps ANSI color codes in logs. |
+|  |  | `environment = KEY1="value1",KEY2="value2"` | Defines environment variables for Supervisor. |
+| **[supervisorctl]** | Configures the `supervisorctl` interactive shell program. | `serverurl = unix:///tmp/supervisor.sock` | Specifies the Supervisor server URL (UNIX socket or TCP). |
+|  |  | `username = chris` | Username for authentication. |
+|  |  | `password = 123` | Password for authentication. |
+|  |  | `prompt = mysupervisor` | Custom prompt name for `supervisorctl`. |
+| **[program:x]** | Defines a program/process managed by Supervisor. | `command = /bin/cat` | Specifies the command to run. |
+|  |  | `process_name = %(program_name)s` | Defines process name formatting. |
+|  |  | `numprocs = 1` | Number of process instances to run. |
+|  |  | `directory = /tmp` | Working directory for the process. |
+|  |  | `umask = 022` | Sets default file permissions. |
+|  |  | `priority = 999` | Determines process start order (lower starts first). |
+|  |  | `autostart = true` | Starts the process when Supervisor starts. |
+|  |  | `autorestart = unexpected` | Restarts the process if it exits unexpectedly. |
+|  |  | `startsecs = 10` | Time (in seconds) to wait before considering a process as started. |
+|  |  | `startretries = 3` | Number of times Supervisor will retry starting the process. |
+|  |  | `exitcodes = 0` | Expected exit codes for a normal process stop. |
+|  |  | `stopsignal = TERM` | Signal sent to stop the process. |
+|  |  | `stopwaitsecs = 10` | Time to wait before forcefully stopping the process. |
+|  |  | `user = chrism` | Runs the process as a specific user. |
+|  |  | `stdout_logfile = /a/path` | Log file for standard output (stdout). |
+|  |  | `stderr_logfile = /a/path` | Log file for standard error (stderr). |
+| **[include]** | Includes additional configuration files. | `files = /an/absolute/*.conf` | Specifies files to include in the Supervisor config. |
+| **[group:x]** | Groups multiple programs together for easier management. | `programs = bar,baz` | List of programs included in the group. |
+|  |  | `priority = 999` | Determines the order in which groups are started. |
+| **[fcgi-program:x]** | Manages FastCGI processes for web servers. | `command = /usr/bin/example.fcgi` | FastCGI program to run. |
+|  |  | `socket = unix:///var/run/supervisor/%(program_name)s.sock` | Defines the shared FastCGI socket. |
+|  |  | `numprocs = 5` | Number of FastCGI instances to run. |
+| **[eventlistener:x]** | Listens for Supervisor events and handles them. | `command = /bin/eventlistener` | Event listener process to execute. |
+|  |  | `events = PROCESS_STATE` | Type of Supervisor events to listen for. |
+|  |  | `buffer_size = 10` | Maximum number of events buffered before processing. |
+| **[rpcinterface:x]** | Extends Supervisor with custom RPC functions. | `supervisor.rpcinterface_factory = my.package:make_another_rpcinterface` | Defines a custom RPC interface factory. |
+|  |  | `retries = 1` | Configurable parameter for the custom interface. |
+
+---
+
+### **Key Takeaways**  
+1. **Supervisor Configuration is Modular** – Each section serves a specific function.  
+2. **Authentication** – Secure with username/password for HTTP servers and `supervisorctl`.  
+3. **Process Management** – `program`, `group`, `fcgi-program`, and `eventlistener` control different process types.  
+4. **Logging & Debugging** – Logs are configurable for debugging (`stdout_logfile`, `stderr_logfile`).  
+5. **Extensibility** – Custom RPC interfaces allow for advanced automation and integration.  
+
+This table makes it **easy to understand and use** Supervisor's configuration effectively. Let me know if you need any improvements! 🚀
 
 <details>
   <Summary>Click to View Detailed Section Settings of Configuration File</Summary>
