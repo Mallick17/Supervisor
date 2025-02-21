@@ -299,59 +299,57 @@ If you’re rotating logs and want `supervisord` to start writing to new log fil
 | SIGUSR2  | Reopens the main activity log and all child log files.                | `kill -SIGUSR2 $(cat /path/to/supervisord.pid)`      |
 
 ---
+## 1. Installation of Supervisor
 
-
-## Installation & Configuration
-### Step 1: Update the Package List
-Before installing any software, it's a good practice to update the package list to ensure you have the latest versions of the software.
-
+### Update the Package List
+Before installing Supervisor, ensure your package list is up to date:
 ```bash
 sudo apt update
 ```
 
----
-
-### Step 2: Install Supervisord & Verify the Installation
-Install Supervisord using the `apt` package manager. Check the installed version of Supervisord to confirm the installation was successful.
-
+### Install Supervisor
+Install Supervisor using the following command:
 ```bash
 sudo apt install supervisor -y
 ```
 
+### Verify Installation
+Check the installed version of Supervisor to confirm the installation:
 ```bash
 supervisord -v
 ```
-- This command should output the version of Supervisord installed.
----
 
-### Step 3: Check Supervisord Service Status
-Ensure that the Supervisord service is running.
-
+### Check Supervisor Service Status
+Ensure the Supervisor service is running:
 ```bash
 sudo systemctl status supervisor
 ```
 
-You should see an output indicating that the service is active and running.
+---
+
+## 2. Basic Configuration of Supervisor
+
+### Edit the Supervisor Configuration File
+Open the main Supervisor configuration file for editing:
+```bash
+sudo nano /etc/supervisor/supervisord.conf
+```
 
 ---
 
-### Step 4: Configure Supervisord
-Edit the Supervisord configuration file to customize its behavior.
+## 3. Setting Up the Web Interface
 
-1. Open the configuration file in a text editor (e.g., `nano`):
+### Enable the Web Interface
+Add the following configuration to `/etc/supervisor/supervisord.conf` to enable the Supervisor web interface:
+```ini
+[inet_http_server]
+port=0.0.0.0:9001
+username=admin
+password=admin
+```
+- **port**: Specifies the IP address and port for the web interface. `0.0.0.0:9001` allows access from any IP address.
+- **username** and **password**: Set the login credentials for the web interface.
 
-   ```bash
-   sudo nano /etc/supervisor/supervisord.conf
-   ```
-
-2. Add or modify the `[inet_http_server]` section to enable the web interface. This section should look like this:
-
-   ```ini
-   [inet_http_server]
-   port=0.0.0.0:9001
-   username=admin
-   password=admin
-   ```
 <details>
    <Summary>Click to view Entire `supervisord.conf` Configuration File</Summary>
 
@@ -394,49 +392,119 @@ files = /etc/supervisor/conf.d/*.conf
 
 </details>
 
-   - `port`: The IP address and port on which the web interface will run. `0.0.0.0:9001` means it will be accessible on all network interfaces on port 9001.
-   - `username` and `password`: Credentials for accessing the web interface.
+---
+### Apply Configuration Changes
+After editing the configuration file, reload Supervisor to apply the changes:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+```
 
-3. Save and exit the editor (in `nano`, press `CTRL + X`, then `Y`, and `Enter`).
+### Restart Supervisor Service
+Restart the Supervisor service to ensure the changes take effect:
+```bash
+sudo systemctl restart supervisor
+```
+
+### Access the Supervisor Web Interface
+Open a web browser and navigate to `http://<your-server-ip>:9001`. Use the credentials (`admin/admin`) to log in and view the status of managed processes.
 
 ---
 
-### Step 5: Apply Configuration Changes
-After modifying the configuration file, reload Supervisord to apply the changes.
+## 4. Managing Nginx with Supervisor
 
-1. Reread the configuration:
+### Install Nginx
+Install Nginx using the following command:
+```bash
+sudo apt install nginx -y
+```
 
-   ```bash
-   sudo supervisorctl reread
-   ```
+### Stop and Disable Nginx Service
+Since Supervisor will manage Nginx, stop and disable the default Nginx service:
+```bash
+sudo systemctl stop nginx
+sudo systemctl disable nginx
+```
 
-2. Update the configuration:
+### Create a Supervisor Configuration for Nginx
+Create a new configuration file for Nginx in the Supervisor configuration directory:
+```bash
+sudo nano /etc/supervisor/conf.d/nginx.conf
+```
 
-   ```bash
-   sudo supervisorctl update
-   ```
+Add the following configuration to the file:
+```ini
+[program:nginx]
+command=/usr/sbin/nginx -c /etc/nginx/nginx.conf
+autostart=true
+autorestart=true
+startretries=5
+numprocs=1
+startsecs=0
+process_name=%(program_name)s_%(process_num)02d
+stderr_logfile=/var/log/supervisor/%(program_name)s_stderr.log
+stderr_logfile_maxbytes=10MB
+stdout_logfile=/var/log/supervisor/%(program_name)s_stdout.log
+stdout_logfile_maxbytes=10MB
+```
+- **command**: Specifies the command to start Nginx.
+- **autostart**: Ensures Nginx starts automatically with Supervisor.
+- **autorestart**: Automatically restarts Nginx if it fails.
+- **stderr_logfile** and **stdout_logfile**: Define log files for error and output logs.
 
-3. Restart the Supervisord service:
+### Apply Nginx Configuration
+Reload Supervisor to apply the new Nginx configuration:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+```
 
-   ```bash
-   sudo systemctl restart supervisor
-   ```
-
----
-
-### Step 6: Access the Supervisord Web Interface
-Once the configuration is complete, you can access the Supervisord web interface using a web browser.
-
-- Open a browser and navigate to `http://<your-server-ip>:9001`.
-- Use the username `admin` and password `admin` to log in.
-
-## Troubleshooting
-- If the web interface is not accessible, ensure that the firewall allows traffic on port `9001`.
-- Check the Supervisord logs for errors:
+### Manage Nginx via Supervisor
+Use the `supervisorctl` command to manage Nginx:
+```bash
+sudo supervisorctl
+```
+- Stop Nginx:
   ```bash
-  sudo tail -f /var/log/supervisor/supervisord.log
+  stop nginx:nginx_00
+  ```
+- Start Nginx:
+  ```bash
+  start nginx:nginx_00
+  ```
+- Exit the Supervisor control interface:
+  ```bash
+  exit
   ```
 
+---
+
+## 5. Verification and Testing
+### Verify Nginx Processes
+Check if Nginx is running under Supervisor:
+```bash
+ps aux | grep nginx
+```
+### Access the Supervisor Web Interface
+Open a web browser and navigate to `http://<your-server-ip>:9001`. Use the credentials (`admin/admin`) to log in and view the status of managed processes.
+---
+## 6. Troubleshooting
+### Check Supervisor Logs
+If issues arise, check the Supervisor logs for errors:
+```bash
+sudo tail -f /var/log/supervisor/supervisord.log
+```
+### Check Nginx Logs
+Review Nginx logs for any errors:
+```bash
+sudo tail -f /var/log/nginx/error.log
+```
+### Verify Configuration Files
+Ensure there are no syntax errors in the configuration files:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+```
 ---
 ## Configuration File
 The Supervisor configuration file is conventionally named `supervisord.conf`. It is used by both supervisord and supervisorctl. If either application is started without the `-c` option (the option which is used to tell the application the configuration filename explicitly), the application will look for a file named `supervisord.conf` within the following locations, in the specified order. It will use the first file it finds.
