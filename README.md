@@ -451,15 +451,239 @@ command=/usr/bin/example --loglevel=%(ENV_LOGLEVEL)s
 - In the example above, the expression %(ENV_LOGLEVEL)s would be expanded to the value of the environment variable LOGLEVEL. In Supervisor 3.2 and later, %(ENV_X)s expressions are supported in all options.
 
 ## Section Settings
+
+<details>
+  <Summary>Click to View Detailed Section Settings of Configuration File</Summary>
+
 ### [unix_http_server] -- Configures a UNIX domain socket for Supervisor's HTTP server.
 - This section configures an HTTP server that listens on a UNIX domain socket. If this section is missing, the HTTP server won't start.
 ```ini
+[unix_http_server]
 file = /tmp/supervisor.sock   ## Specifies the socket file location for communication.  
 chmod = 0777   ## Sets the permission of the socket file (read/write for everyone).  
 chown = nobody:nogroup   ## Defines the owner and group of the socket file.  
 username = user   ## Sets a username for authentication.  
 password = 123   ## Sets a password for authentication.
 ```
+---
+### [inet_http_server]  
+- This section configures an HTTP server that listens on a TCP (internet) socket. If this section is missing, the HTTP server won't start.  
+```ini
+[inet_http_server] 
+port = 127.0.0.1:9001   ## Defines the IP address and port for the HTTP server.  
+username = user   ## Sets a username for authentication.  
+password = 123   ## Sets a password for authentication.  
+```
+---
+### [supervisord]  
+- This section defines global settings for the supervisord process.  
+```ini
+[supervisord]
+logfile = /tmp/supervisord.log   ## Specifies the path to the supervisord log file.  
+logfile_maxbytes = 50MB   ## Sets the maximum size of the log file before rotation.  
+logfile_backups = 10   ## Limits the number of rotated log backups.  
+loglevel = info   ## Defines the logging level (debug, info, warn, error, critical).  
+pidfile = /tmp/supervisord.pid   ## Stores the process ID (PID) of supervisord.  
+nodaemon = false   ## Runs supervisord as a daemon (background process).  
+minfds = 1024   ## Sets the minimum number of file descriptors available.  
+minprocs = 200   ## Sets the minimum number of process descriptors available.  
+umask = 022   ## Defines the file permission mask for new files.  
+user = chrism   ## Runs supervisord as the specified user.  
+identifier = supervisor   ## Names the supervisord instance for identification.  
+directory = /tmp   ## Sets the working directory for supervisord.  
+nocleanup = true   ## Prevents removal of child process log files on exit.  
+childlogdir = /tmp   ## Defines the directory for storing child process logs.  
+strip_ansi = false   ## Determines whether to remove ANSI escape codes from logs.  
+environment = KEY1="value1",KEY2="value2"   ## Sets environment variables for supervisord.  
+```
+---
+### [supervisorctl]  
+- This section configures settings for the `supervisorctl` interactive shell program.
+```ini
+[supervisorctl]  
+serverurl = unix:///tmp/supervisor.sock   ## Specifies the URL of the supervisord server (UNIX socket or TCP).  
+username = chris   ## Sets a username for authentication.  
+password = 123   ## Sets a password for authentication.  
+prompt = mysupervisor   ## Customizes the command prompt in the `supervisorctl` shell.  
+```
+---
+### [program:x]  
+- This section defines a program that `supervisord` should manage. The program name follows the format `[program:<name>]`, where `<name>` is a unique identifier.  
 
+```ini
+[program:cat]  
+command = /bin/cat   ## Specifies the command to run the program.  
+process_name = %(program_name)s   ## Sets the process name (uses the program name).  
+numprocs = 1   ## Defines the number of process instances to start.  
+directory = /tmp   ## Sets the working directory for the process.  
+umask = 022   ## Defines the file permission mask for new files.  
+priority = 999   ## Determines the process start order (lower values start first).  
+autostart = true   ## Starts the process automatically when `supervisord` starts.  
+autorestart = unexpected   ## Restarts the process if it exits unexpectedly.  
+startsecs = 10   ## Waits this many seconds before considering the process started.  
+startretries = 3   ## Number of restart attempts if the process fails to start.  
+exitcodes = 0   ## Specifies which exit codes are considered successful.  
+stopsignal = TERM   ## Signal sent to stop the process (e.g., TERM, KILL).  
+stopwaitsecs = 10   ## Time to wait before forcefully stopping the process.  
+stopasgroup = false   ## If true, sends stop signal to the entire process group.  
+killasgroup = false   ## If true, kills the entire process group on termination.  
+user = chrism   ## Runs the process as the specified user.  
 
+redirect_stderr = false   ## If true, redirects stderr to stdout.  
+stdout_logfile = /a/path   ## Path to the standard output log file.  
+stdout_logfile_maxbytes = 1MB   ## Maximum size before rotating stdout log file.  
+stdout_logfile_backups = 10   ## Number of rotated stdout log backups to keep.  
+stdout_capture_maxbytes = 1MB   ## Max bytes to capture for event monitoring.  
+stdout_events_enabled = false   ## Enables event monitoring for stdout logs.  
+
+stderr_logfile = /a/path   ## Path to the standard error log file.  
+stderr_logfile_maxbytes = 1MB   ## Maximum size before rotating stderr log file.  
+stderr_logfile_backups = 10   ## Number of rotated stderr log backups to keep.  
+stderr_capture_maxbytes = 1MB   ## Max bytes to capture for event monitoring.  
+stderr_events_enabled = false   ## Enables event monitoring for stderr logs.  
+
+environment = A="1",B="2"   ## Sets environment variables for the process.  
+serverurl = AUTO   ## Defines the server URL (AUTO uses default settings).  
+```
+---
+### [include]  
+- This section allows including additional configuration files in `supervisord.conf`.  
+```ini
+files = /an/absolute/filename.conf /an/absolute/*.conf foo.conf config??.conf  
+## Specifies one or more configuration files to be included.  
+## Supports absolute paths, wildcards (`*.conf`), and pattern matching (`??`).  
+```
+---
+### [group:x]  
+- This section groups multiple programs into a single unit for easier management.  
+```ini
+[group:foo]  
+programs = bar,baz   ## Lists the programs that belong to this group.  
+priority = 999   ## Determines the start order (lower values start first).  
+```
+- Notes:
+  - A group allows controlling multiple programs as a single unit in Supervisor.  
+  - The `[program:x]` sections for `bar` and `baz` must be defined elsewhere in the config.  
+  - At runtime, `bar` and `baz` won't exist as separate groups but will be part of `foo`.  
+---
+### [fcgi-program:x]  
+- This section configures a FastCGI program managed by Supervisor.  
+- It allows multiple FastCGI processes to share a single socket for better performance and fault tolerance.  
+
+```ini
+[fcgi-program:fcgiprogramname]  
+command = /usr/bin/example.fcgi   ## Specifies the command to run the FastCGI program.  
+socket = unix:///var/run/supervisor/%(program_name)s.sock   ## Defines the shared socket for FastCGI processes.  
+socket_owner = chrism   ## Sets the owner of the socket file.  
+socket_mode = 0700   ## Defines the socket file permissions.  
+process_name = %(program_name)s_%(process_num)02d   ## Names each process uniquely.  
+numprocs = 5   ## Defines the number of FastCGI processes to spawn.  
+directory = /tmp   ## Sets the working directory for the process.  
+umask = 022   ## Defines the file permission mask for new files.  
+priority = 999   ## Determines the process start order (lower values start first).  
+autostart = true   ## Starts the process automatically when `supervisord` starts.  
+autorestart = unexpected   ## Restarts the process if it exits unexpectedly.  
+startsecs = 1   ## Waits this many seconds before considering the process started.  
+startretries = 3   ## Number of restart attempts if the process fails to start.  
+exitcodes = 0   ## Specifies which exit codes are considered successful.  
+stopsignal = QUIT   ## Signal sent to stop the process (e.g., TERM, KILL).  
+stopasgroup = false   ## If true, sends stop signal to the entire process group.  
+killasgroup = false   ## If true, kills the entire process group on termination.  
+stopwaitsecs = 10   ## Time to wait before forcefully stopping the process.  
+user = chrism   ## Runs the process as the specified user.  
+
+redirect_stderr = true   ## If true, redirects stderr to stdout.  
+stdout_logfile = /a/path   ## Path to the standard output log file.  
+stdout_logfile_maxbytes = 1MB   ## Maximum size before rotating stdout log file.  
+stdout_logfile_backups = 10   ## Number of rotated stdout log backups to keep.  
+stdout_events_enabled = false   ## Enables event monitoring for stdout logs.  
+
+stderr_logfile = /a/path   ## Path to the standard error log file.  
+stderr_logfile_maxbytes = 1MB   ## Maximum size before rotating stderr log file.  
+stderr_logfile_backups = 10   ## Number of rotated stderr log backups to keep.  
+stderr_events_enabled = false   ## Enables event monitoring for stderr logs.  
+
+environment = A="1",B="2"   ## Sets environment variables for the process.  
+serverurl = AUTO   ## Defines the server URL (AUTO uses default settings).  
+```
+- Key Benefits:
+  - Allows multiple FastCGI processes to share a socket for improved performance.  
+  - Enables graceful restarts since the socket remains open while child processes restart.  
+  - Works with any web server, providing full process management without server dependency.  
+---
+### [eventlistener:x]  
+- This section configures event listener processes that handle Supervisor event notifications.  - Similar to `[program:x]`, but listens for specific Supervisor events.  
+
+```ini
+[eventlistener:theeventlistenername]  
+command = /bin/eventlistener   ## Specifies the command to run the event listener.  
+process_name = %(program_name)s_%(process_num)02d   ## Names each process uniquely.  
+numprocs = 5   ## Defines the number of listener processes to spawn.  
+events = PROCESS_STATE   ## Specifies the event types this listener will handle.  
+buffer_size = 10   ## Defines the event queue size before messages are dropped.  
+directory = /tmp   ## Sets the working directory for the process.  
+umask = 022   ## Defines the file permission mask for new files.  
+priority = -1   ## Determines the process start order (lower values start first).  
+autostart = true   ## Starts the process automatically when `supervisord` starts.  
+autorestart = unexpected   ## Restarts the process if it exits unexpectedly.  
+startsecs = 1   ## Waits this many seconds before considering the process started.  
+startretries = 3   ## Number of restart attempts if the process fails to start.  
+exitcodes = 0   ## Specifies which exit codes are considered successful.  
+stopsignal = QUIT   ## Signal sent to stop the process (e.g., TERM, KILL).  
+stopwaitsecs = 10   ## Time to wait before forcefully stopping the process.  
+stopasgroup = false   ## If true, sends stop signal to the entire process group.  
+killasgroup = false   ## If true, kills the entire process group on termination.  
+user = chrism   ## Runs the process as the specified user.  
+
+redirect_stderr = false   ## If true, redirects stderr to stdout.  
+stdout_logfile = /a/path   ## Path to the standard output log file.  
+stdout_logfile_maxbytes = 1MB   ## Maximum size before rotating stdout log file.  
+stdout_logfile_backups = 10   ## Number of rotated stdout log backups to keep.  
+stdout_events_enabled = false   ## Enables event monitoring for stdout logs.  
+
+stderr_logfile = /a/path   ## Path to the standard error log file.  
+stderr_logfile_maxbytes = 1MB   ## Maximum size before rotating stderr log file.  
+stderr_logfile_backups = 10   ## Number of rotated stderr log backups to keep.  
+stderr_events_enabled = false   ## Enables event monitoring for stderr logs.  
+
+environment = A="1",B="2"   ## Sets environment variables for the process.  
+serverurl = AUTO   ## Defines the server URL (AUTO uses default settings).  
+```
+- Key Benefits:
+  - Listens for Supervisor events (e.g., process state changes).  
+  - Helps automate tasks like logging, monitoring, and alerting.  
+  - Supports multiple event listeners running in parallel.  
+---
+### [rpcinterface:x]  
+- This section is used to extend Supervisor with custom Remote Procedure Call (RPC) interfaces.  
+- It allows adding new functionalities beyond Supervisor’s default capabilities.  
+```ini
+[rpcinterface:supervisor]  
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface   ## Required for Supervisor’s standard RPC functions.  
+```
+- The above section **must be present** in the configuration for Supervisor to function properly.  
+- If no additional RPC features are needed, no further modifications are required.  
+
+- **Adding Custom RPC Interfaces**  
+  - To customize Supervisor, additional `[rpcinterface:x]` sections can be added, where `x` is the custom namespace.  
+```ini
+[rpcinterface:another]  
+supervisor.rpcinterface_factory = my.package:make_another_rpcinterface   ## Specifies a custom RPC factory function.  
+retries = 1   ## Custom parameter passed to the factory function.  
+```
+- **Example Python Factory Function (`my.package` module)**
+```python
+from my.package.rpcinterface import AnotherRPCInterface
+
+def make_another_rpcinterface(supervisord, **config):
+    retries = int(config.get('retries', 0))  # Gets retries from the config
+    return AnotherRPCInterface(supervisord, retries)  # Returns an instance of the custom interface
+```
+- Key Benefits:
+  - Allows Supervisor to support additional RPC commands.  
+  - Enables automation and integration with external systems.  
+  - Custom parameters (like `retries`) can be defined in the config file and passed dynamically.  
+---
+
+</details>
 
