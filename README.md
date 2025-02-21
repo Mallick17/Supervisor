@@ -438,5 +438,28 @@ Once the configuration is complete, you can access the Supervisord web interface
   ```
 
 ---
+## Configuration File
+The Supervisor configuration file is conventionally named `supervisord.conf`. It is used by both supervisord and supervisorctl. If either application is started without the `-c` option (the option which is used to tell the application the configuration filename explicitly), the application will look for a file named `supervisord.conf` within the following locations, in the specified order. It will use the first file it finds.
+### File Format
+`supervisord.conf` is a Windows-INI-style (Python ConfigParser) file. It has sections (each denoted by a `[header]`) and key / value pairs within the sections. The sections and their allowable values are described below.
+### Environment Variables
+- Environment variables that are present in the environment at the time that supervisord is started can be used in the configuration file using the Python string expression syntax `%(ENV_X)s`:
+```ini
+[program:example]
+command=/usr/bin/example --loglevel=%(ENV_LOGLEVEL)s
+```
+- In the example above, the expression %(ENV_LOGLEVEL)s would be expanded to the value of the environment variable LOGLEVEL. In Supervisor 3.2 and later, %(ENV_X)s expressions are supported in all options.
+
+## Section Settings
+### [unix_http_server] -- Configures a UNIX domain socket for Supervisor's HTTP server.
+- This section configures an HTTP server that listens on a UNIX domain socket. If this section is missing, the HTTP server won't start.
+```ini
+file = /tmp/supervisor.sock   ## Specifies the socket file location for communication.  
+chmod = 0777   ## Sets the permission of the socket file (read/write for everyone).  
+chown = nobody:nogroup   ## Defines the owner and group of the socket file.  
+username = user   ## Sets a username for authentication.  
+password = 123   ## Sets a password for authentication.
+```
+
 
 
