@@ -825,3 +825,193 @@ def make_another_rpcinterface(supervisord, **config):
 
 </details>
 
+## Supervisor Email Alert System
+## Directory Structure
+Supervisor configuration files are located in `/etc/supervisor/conf.d/`, and the event listener script is stored in `/etc/supervisor/`.
+
+```
+/etc/supervisor/
+├── supervisord.conf
+├── eventlistener.py
+└── conf.d/
+    ├── eventlistener.conf
+    ├── nginx.conf
+```
+
+---
+
+## Supervisor Configuration Files
+
+### 1. Event Listener Configuration
+Located at `/etc/supervisor/conf.d/eventlistener.conf`, this configuration defines the event listener process.
+
+<details>
+  <summary>Click to View the Configuration File</summary>
+
+```ini
+[eventlistener:process_monitor]
+command=python3 /etc/supervisor/eventlistener.py
+events=PROCESS_STATE
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/supervisor/eventlistener.err.log
+stdout_logfile=/var/log/supervisor/eventlistener.out.log
+```
+
+- **command**: Executes the Python script that listens for process state events.
+- **events**: Listens for process state changes.
+- **autostart**: Starts automatically when Supervisor starts.
+- **autorestart**: Restarts if it crashes.
+- **logfiles**: Stores stdout and stderr logs for debugging.
+
+</details>
+
+### 2. Nginx Process Configuration
+Located at `/etc/supervisor/conf.d/nginx.conf`, this configuration manages the Nginx process.
+
+<details>
+  <summary>Click to View the Configuration File</summary>
+
+```ini
+[program:nginx]
+command=/usr/sbin/nginx -c /etc/nginx/nginx.conf
+autostart=true
+autorestart=true
+startretries=5
+numprocs=1
+startsecs=0
+process_name=%(program_name)s_%(process_num)02d
+stderr_logfile=/var/log/supervisor/%(program_name)s_stderr.log
+stderr_logfile_maxbytes=10MB
+stdout_logfile=/var/log/supervisor/%(program_name)s_stdout.log
+stdout_logfile_maxbytes=10MB
+```
+
+- **command**: Defines the Nginx startup command.
+- **autostart/autorestart**: Ensures the process runs continuously.
+- **logfiles**: Manages error and output logs with size limits.
+
+</details>
+
+### 3. Supervisor Main Configuration
+Located at `/etc/supervisor/supervisord.conf`, this file contains global Supervisor settings.
+
+<details>
+  <summary>Click to View the Configuration File</summary>
+
+```ini
+[unix_http_server]
+file=/var/run/supervisor.sock
+chmod=0700
+
+[inet_http_server]
+port=0.0.0.0:9001
+username=admin
+password=admin
+
+[supervisord]
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+childlogdir=/var/log/supervisor
+eventlistener_buffer_size = 100
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock
+
+[include]
+files = /etc/supervisor/conf.d/*.conf
+```
+
+- **inet_http_server**: Enables Supervisor’s web interface on port 9001.
+- **logfiles**: Defines locations for logs and PID files.
+- **eventlistener_buffer_size**: Controls the buffer size for event listeners.
+- **include**: Loads additional configuration files.
+
+</details>
+---
+
+## Python Event Listener Script
+Located at `/etc/supervisor/eventlistener.py`, this script listens for Supervisor events and sends email notifications.
+
+<details>
+  <summary>Click to View the Configuration File</summary>
+
+```python
+import sys
+import smtplib
+from email.mime.text import MIMEText
+
+def write_stdout(s):
+    sys.stdout.write(s)
+    sys.stdout.flush()
+
+def write_stderr(s):
+    sys.stderr.write(s)
+    sys.stderr.flush()
+
+def send_email(subject, message):
+    sender = 'gyanaranjanmallick444@gmail.com'
+    receivers = ['gyanaranjanmallick17@gmail.com']
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(receivers)
+
+    try:
+        smtpObj = smtplib.SMTP('smtp.gmail.com', 587)
+        smtpObj.starttls()
+        smtpObj.login('gyanaranjanmallick444@gmail.com', 'your-app-password')
+        smtpObj.sendmail(sender, receivers, msg.as_string())
+        write_stderr("Successfully sent email\n")
+    except Exception as e:
+        write_stderr(f"Error: {str(e)}\n")
+
+def main():
+    while True:
+        write_stdout('READY\n')
+        line = sys.stdin.readline()
+        write_stderr(line)
+        headers = dict([x.split(':') for x in line.split()])
+        data = sys.stdin.read(int(headers['len']))
+        write_stderr(data)
+        send_email('Supervisor Event', data)
+        write_stdout('RESULT 2\nOK')
+
+if __name__ == '__main__':
+    main()
+```
+
+- **write_stdout/write_stderr**: Handles logging and debugging.
+- **send_email**: Sends an email notification using Gmail SMTP.
+- **main**: Listens for process state change events and triggers email alerts.
+
+> **Note:** Replace `'your-app-password'` with a valid [Gmail App Password](https://myaccount.google.com/apppasswords) to avoid authentication issues.
+
+</details>
+
+---
+
+## Deployment and Usage
+
+### 1. Reload Supervisor Configuration
+```sh
+supervisorctl reread
+supervisorctl update
+supervisorctl restart process_monitor
+```
+
+### 2. Check Logs for Errors
+```sh
+tail -f /var/log/supervisor/eventlistener.err.log
+```
+
+### 3. Verify Supervisor Status
+```sh
+supervisorctl status
+```
+---
+
+
